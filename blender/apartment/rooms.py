@@ -117,7 +117,7 @@ def pendant(name, coll, loc, drop=0.9, kelvin=2700):
 def table_lamp(name, coll, loc):
     g = group(name, coll, loc)
     cylinder(f"{name}_base", coll, (0, 0, 0.18), 0.05, 0.36, mats.get("ceramic"), parent=g)
-    cylinder(f"{name}_shade", coll, (0, 0, 0.44), 0.16, 0.22, mats.get("linen"), parent=g, bevel=0.0)
+    cylinder(f"{name}_shade", coll, (0, 0, 0.44), 0.16, 0.22, mats.get("lamp_shade"), parent=g, bevel=0.0)
     p = _point(f"{name}_light", coll, (0, 0, 0.42), 18, 0.06)
     p.parent = g
     return g
@@ -280,12 +280,30 @@ def build_bedroom_module(M, offset, coll):
     _floor(M, "bedroom", coll, offset, R["size"], R["floor"])
     _ceiling_lights(M, "bedroom", coll, offset, R["size"])
     bx, by = ox + 4.25, oy + 3.85  # bed centre (headboard on the north wall)
-    upholster(box("bed_headboard", coll, (bx, oy + 4.86, 1.0), (3.2, 0.08, 2.0), mats.get("fabric_dark"), bevel=0.03), puff=0.02, wrinkle=0.002)
+    # channel-tufted headboard: vertical stuffed panels read as upholstery, a flat slab reads as a wall
+    box("bed_headboard", coll, (bx, oy + 4.88, 1.0), (3.2, 0.04, 2.0), mats.get("fabric_dark"), bevel=0.01)
+    n_ch = 10
+    for i in range(n_ch):
+        x = bx - 1.6 + 3.2 / n_ch * (i + 0.5)
+        upholster(box(f"bed_headboard_ch{i}", coll, (x, oy + 4.83, 1.0), (3.2 / n_ch - 0.01, 0.07, 1.96),
+                      mats.get("fabric_dark"), bevel=0.03), puff=0.06, wrinkle=0.003, seed=i)
     box("bed_frame", coll, (bx, by, 0.18), (1.9, 2.1, 0.3), mats.get("walnut_dark"))
     upholster(box("bed_mattress", coll, (bx, by, 0.43), (1.8, 2.0, 0.22), mats.get("linen"), bevel=0.05), puff=0.04, wrinkle=0.006)
-    box("bed_throw", coll, (bx, by - 0.65, 0.55), (1.86, 0.6, 0.03), mats.get("fabric_dark"), bevel=0.012)
+    # duvet slightly overhanging the mattress, folded back at the head; throw draped over it
+    upholster(box("bed_duvet", coll, (bx, by - 0.2, 0.57), (1.94, 1.6, 0.06), mats.get("linen"), bevel=0.03),
+              puff=0.03, wrinkle=0.012, seed=2)
+    upholster(box("bed_duvet_fold", coll, (bx, by + 0.62, 0.6), (1.94, 0.3, 0.07), mats.get("linen"), bevel=0.035),
+              puff=0.15, wrinkle=0.01, seed=4)
+    upholster(box("bed_throw", coll, (bx, by - 0.65, 0.61), (1.98, 0.6, 0.025), mats.get("fabric_dark"), bevel=0.012),
+              puff=0.02, wrinkle=0.01, seed=5)
     for s in (-1, 1):
-        upholster(box(f"bed_pillow{s}", coll, (bx + s * 0.42, oy + 4.6, 0.63), (0.7, 0.25, 0.18), mats.get("linen"), bevel=0.07), puff=0.3, wrinkle=0.008, seed=s + 1)
+        p = box(f"bed_pillow{s}", coll, (bx + s * 0.44, oy + 4.62, 0.7), (0.7, 0.2, 0.45), mats.get("linen"), bevel=0.08)
+        p.rotation_euler = (math.radians(-14), 0.0, math.radians(s * 2.0))
+        upholster(p, puff=0.35, wrinkle=0.008, seed=s + 1)
+        q = box(f"bed_cushion{s}", coll, (bx + s * 0.3, oy + 4.42, 0.68), (0.45, 0.16, 0.38), mats.get("fabric_dark"),
+                bevel=0.07)
+        q.rotation_euler = (math.radians(-10), 0.0, math.radians(-s * 4.0))
+        upholster(q, puff=0.35, wrinkle=0.006, seed=s + 3)
         box(f"bed_side{s}", coll, (bx + s * 1.5, oy + 4.6, 0.25), (0.5, 0.4, 0.5), mats.get("walnut"))
         table_lamp(f"bed_lamp{s}", coll, (bx + s * 1.5, oy + 4.6, 0.5))
     # Bedside light line at headboard height: match cut into the living LED line.

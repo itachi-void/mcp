@@ -74,9 +74,14 @@ def main():
     print(f"mode={mode} gpu={gpu}")
 
     if mode == "preview":
-        for fmt in args[1:] or ["16x9", "9x16"]:
+        fmts = [a for a in args[1:] if not a.startswith("--")] or ["16x9", "9x16"]
+        frames = PREVIEW_FRAMES
+        for a in args[1:]:
+            if a.startswith("--frames="):
+                frames = [int(x.strip()) for x in a.split("=", 1)[1].split(",") if x.strip()]
+        for fmt in fmts:
             sc = bpy.data.scenes[f"FLY_{fmt}"]
-            for f in PREVIEW_FRAMES:
+            for f in frames:
                 sc.frame_set(f)
                 for c in (sc.camera,):
                     if gpu:

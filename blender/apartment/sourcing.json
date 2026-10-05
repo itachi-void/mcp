@@ -178,14 +178,6 @@
    "rot": 200
   },
   {
-   "model": "book_encyclopedia_set_01",
-   "anchor": "bed_throw",
-   "on": "top",
-   "dx": 0.5,
-   "dy": 0.0,
-   "rot": 15
-  },
-  {
    "model": "potted_plant_02",
    "anchor": "terrace_plant0",
    "on": "floor",

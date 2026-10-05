@@ -209,6 +209,22 @@ def tile():
     return mat
 
 
+def lamp_shade():
+    """Linen shade lit from inside: diffuse front + translucent back, so the shade glows
+    warm instead of turning into a grey cylinder."""
+    mat, nt, b = _new("M_lamp_shade")
+    _set(b, base=hex_to_linear("#EFE6D6"), rough=0.9, sheen=0.4)
+    tr = nt.nodes.new("ShaderNodeBsdfTranslucent")
+    tr.inputs["Color"].default_value = hex_to_linear("#F6D9AE")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    mix.inputs["Fac"].default_value = 0.55
+    out = nt.nodes["Material Output"]
+    nt.links.new(b.outputs["BSDF"], mix.inputs[1])
+    nt.links.new(tr.outputs["BSDF"], mix.inputs[2])
+    nt.links.new(mix.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
 def glass():
     """Architectural glass: refractive for camera rays, transparent for shadow
     rays, so sunlight passes the glazing with caustics disabled (no fireflies)."""
@@ -289,8 +305,9 @@ def build_library(M):
         "plant": solid("M_plant", "#3E5134", rough=0.6),
         "tile": tile(),
         "glass": glass(),
+        "lamp_shade": lamp_shade(),
         "lamp_warm": emission("M_emit_lamp", L["practical_kelvin"], 14.0),
-        "led_strip": emission("M_emit_led", L["practical_kelvin"], 28.0),
+        "led_strip": emission("M_emit_led", L["practical_kelvin"], 16.0),
         "painting": painting(M),
     })
     apply_scanned(M)

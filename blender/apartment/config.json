@@ -47,7 +47,7 @@
     "_doc": "One exposure for the whole apartment: every room gets the same ceiling irradiance (W per m2) and the same colour temperature, so brightness does not jump across cuts.",
     "ceiling_w_per_m2": 4.0,
     "kelvin": 4000,
-    "practical_kelvin": 2700,
+    "practical_kelvin": 3000,
     "sun": { "strength": 3.5, "direction": [-0.78, 0.22, -0.58], "angle_deg": 0.6 },
     "sky_color": "#B9C7D6",
     "sky_strength": 0.9
@@ -89,10 +89,10 @@
     },
     {
       "id": "SHOT_02", "name": "kitchen_dining", "start": 271, "end": 480,
-      "lens": 24, "fstop": 2.8,
+      "lens": 24, "fstop": 4.0,
       "path":  [[271, [3.7, 7.0, 1.12]], [330, [4.6, 6.75, 1.25]], [384, [6.6, 6.9, 1.35]], [430, [8.4, 6.9, 1.40]], [480, [9.9, 7.0, 1.40]]],
       "aim":   [[271, [4.4, 8.0, 0.94]], [330, [5.5, 8.2, 1.30]], [384, [8.6, 8.3, 0.90]], [416, [9.0, 8.3, 0.80]], [480, [14.0, 8.3, 1.45]]],
-      "focus": [[271, [4.4, 8.0, 0.94]], [384, [8.6, 8.3, 0.85]], [416, [9.0, 8.3, 0.80]], [448, [14.0, 7.5, 1.40]], [480, [14.0, 7.5, 1.40]]],
+      "focus": [[271, [4.4, 8.0, 0.94]], [384, [8.6, 8.3, 0.85]], [416, [9.0, 8.3, 0.80]], [430, [9.0, 8.3, 0.80]], [442, [14.0, 7.5, 1.40]], [480, [14.0, 7.5, 1.40]]],
       "bank":  [[330, 0.0], [384, 2.5], [430, 0.0]],
       "occluders": [],
       "shadow_wipes": [{ "frame": 372, "label": "pendant_shadow" }],

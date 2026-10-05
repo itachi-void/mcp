@@ -19,6 +19,7 @@ Exit code: 0 all installed, 2 something failed validation (nothing saved).
 import json
 import os
 import sys
+import time
 
 import bpy
 from mathutils import Matrix, Vector
@@ -250,6 +251,11 @@ def apply(map_path):
         log(step="done", saved=False)
         sys.exit(2)
     out = os.path.join(HERE, "apartment_final.blend")
+    if os.path.exists(out):
+        try:
+            os.remove(out)
+        except OSError:
+            pass
     bpy.ops.wm.save_as_mainfile(filepath=out, compress=True)
     log(step="done", saved=out)
 
