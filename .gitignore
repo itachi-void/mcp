@@ -7,24 +7,27 @@ build/
 vite.config.*.timestamp-*
 *.tsbuildinfo
 *-debug.log*
-logs/
-*.log
+/logs/
+!blender/logs/
+!blender/logs/*.log
 .claude-replay.*
 .tmp-*
 /.figma/design-context/
 
-# Platform-managed agentplat state, not project source. In the
-# client-initiated single-repo workspace layout (make's `Path: "."` spec) the
-# repo root IS the workspace root, so these land inside this repo rather than
-# beside it.
+# Platform-managed agentplat state
 /.plugins/
 /.opencode-skills/
-render/
+
+# Renders: only keep preview images, ignore master/animations
+render/*
+!render/preview/
+!render/preview/*.png
+
 __pycache__/
 *.pyc
 *.blend1
-blender/assets/textures/
-blender/assets/hdri/
-blender/assets/models/
-blender/assets/*.jpg
+
+# Ignore heavy downloaded assets and proprietary assets
+blender/assets/
+blender/apartment_final.blend
 *.part

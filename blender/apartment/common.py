@@ -163,10 +163,36 @@ def ring(name, coll, center, radius, thickness, mat, parent=None):
 def add_bevel(obj, width):
     mod = obj.modifiers.new("bevel", "BEVEL")
     mod.width = width
-    mod.segments = 2
+    mod.segments = 3
     mod.limit_method = "ANGLE"
-    mod.harden_normals = False
+    # smooth shading + hardened normals: edges catch a soft highlight instead of a hard line
+    mod.harden_normals = True
+    for p in obj.data.polygons:
+        p.use_smooth = True
     return mod
+
+
+def upholster(obj, puff=0.12, wrinkle=0.006, seed=0):
+    """Turn a bevelled box into a stuffed cushion: subdivide, pull the faces outward
+    (cast toward a sphere = filling pressure) and add a faint low-frequency wrinkle.
+    Real upholstery is never a perfect box -- that is what reads as plastic."""
+    for m in [m for m in obj.modifiers if m.type == "BEVEL"]:
+        m.harden_normals = False
+    sub = obj.modifiers.new("subdiv", "SUBSURF")
+    sub.levels, sub.render_levels = 1, 3
+    cast = obj.modifiers.new("puff", "CAST")
+    cast.cast_type, cast.factor = "SPHERE", puff
+    if wrinkle:
+        tex = bpy.data.textures.new(f"{obj.name}_wrinkle", "CLOUDS")
+        tex.noise_scale, tex.noise_depth = 0.18, 2
+        # different noise basis per piece so no two cushions crease the same way
+        tex.noise_basis = ("BLENDER_ORIGINAL", "ORIGINAL_PERLIN", "IMPROVED_PERLIN")[seed % 3]
+        disp = obj.modifiers.new("wrinkle", "DISPLACE")
+        disp.texture, disp.strength, disp.mid_level = tex, wrinkle, 0.5
+        disp.texture_coords = "GLOBAL"
+    for p in obj.data.polygons:
+        p.use_smooth = True
+    return obj
 
 
 def empty(name, coll, location=(0, 0, 0), rot_z_deg=0.0, size=0.25, kind="PLAIN_AXES"):

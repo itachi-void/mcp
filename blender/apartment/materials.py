@@ -145,6 +145,32 @@ def travertine():
     return mat
 
 
+def _vary(nt, b, hex_color, rough, color_amt=0.08, rough_amt=0.12, scale=3.0, micro=0.0):
+    """Break up the 'one colour, one roughness' CG look: large soft blotches (dye, fading,
+    handling) modulate colour and roughness; optional micro bump = fine surface texture."""
+    n = nt.nodes.new("ShaderNodeTexNoise")
+    n.inputs["Scale"].default_value = scale
+    n.inputs["Detail"].default_value = 6.0
+    nt.links.new(_coords(nt), n.inputs["Vector"])
+    c = tuple(hex_to_linear(hex_color)[:3])
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    e0, e1 = ramp.color_ramp.elements
+    e0.position, e0.color = 0.3, tuple(v * (1 - color_amt) for v in c) + (1.0,)
+    e1.position, e1.color = 0.7, c + (1.0,)
+    nt.links.new(n.outputs["Fac"], ramp.inputs["Fac"])
+    nt.links.new(ramp.outputs["Color"], b.inputs["Base Color"])
+    mr = nt.nodes.new("ShaderNodeMapRange")
+    mr.inputs["To Min"].default_value = max(0.0, rough - rough_amt)
+    mr.inputs["To Max"].default_value = min(1.0, rough + rough_amt)
+    nt.links.new(n.outputs["Fac"], mr.inputs["Value"])
+    nt.links.new(mr.outputs["Result"], b.inputs["Roughness"])
+    if micro:
+        f = nt.nodes.new("ShaderNodeTexNoise")
+        f.inputs["Scale"].default_value = 900.0
+        nt.links.new(_coords(nt), f.inputs["Vector"])
+        _bump(nt, b, f.outputs["Fac"], micro)
+
+
 def fabric(name, hex_color, sheen=0.7, rough=0.85, bump=0.2, scale=380.0):
     mat, nt, b = _new(name)
     _set(b, base=hex_to_linear(hex_color), rough=rough, sheen=sheen, sheen_rough=0.45, spec=0.25)
@@ -152,12 +178,16 @@ def fabric(name, hex_color, sheen=0.7, rough=0.85, bump=0.2, scale=380.0):
     vor.inputs["Scale"].default_value = scale
     nt.links.new(_coords(nt), vor.inputs["Vector"])
     _bump(nt, b, vor.outputs["Distance"], bump)
+    _vary(nt, b, hex_color, rough, color_amt=0.1, rough_amt=0.08, scale=2.5)
     return mat
 
 
 def solid(name, hex_color, rough=0.5, metal=0.0, aniso=0.0, coat=0.0):
     mat, nt, b = _new(name)
     _set(b, base=hex_to_linear(hex_color), rough=rough, metal=metal, aniso=aniso, coat=coat)
+    if rough > 0.02:  # mirrors/chrome stay clean; everything else has handling marks
+        _vary(nt, b, hex_color, rough, color_amt=0.06 if metal else 0.04,
+              rough_amt=min(0.15, rough * 0.45), scale=6.0, micro=0.02 if metal else 0.01)
     return mat
 
 
@@ -254,7 +284,7 @@ def build_library(M):
         "chrome": solid("M_chrome", "#D9D9D9", rough=0.08, metal=1.0),
         "mirror": solid("M_mirror", "#F2F2F2", rough=0.0, metal=1.0),
         "dark_stone": solid("M_dark_stone", "#23211F", rough=0.3, coat=0.3),
-        "ceramic": solid("M_ceramic_white", "#F1EEE8", rough=0.12, coat=0.5),
+        "ceramic": solid("M_ceramic_white", "#EDEAE4", rough=0.18, coat=0.3),
         "terrace_stone": solid("M_terrace_stone", "#A49C90", rough=0.75),
         "plant": solid("M_plant", "#3E5134", rough=0.6),
         "tile": tile(),

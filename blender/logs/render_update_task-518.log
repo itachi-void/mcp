@@ -1,0 +1,32 @@
+ℹ️  blendkit: Verbose is enabled [13:39:47.877, addon_updater.py:150]
+ℹ️  blendkit: Read in JSON settings from file [13:39:47.878, addon_updater.py:150]
+ℹ️  blendkit: Ports reordered so first port is now 62485 (previous index was 0) [13:39:47.881, client_lib.py:163]
+BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
+BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
+BlenderMCP addon registered
+DAZ loaded
+Register DAZ Importer
+Loading MHX Tools
+Register MHX Tools
+Loading Rigify Tools
+Register Rigify Tools
+Loading Hair Tools
+Register Hair Tools
+Loading Visibility Tools
+Register Visibility Tools
+Loading Export Tools
+Register Export Tools
+Settings directory: C:/Users/itachi/Documents/DAZ Importer
+File does not exist:
+"C:/Users/itachi/Documents/DAZ Importer\import_daz_settings.json"
+File does not exist:
+"C:/Users/itachi/import-daz-settings-28x.json"
+VirtuCamera: Blender plug-in version 3.0.0 | Server version 3.0.5
+Created history step 7e3ce4e4-ab8a-45b5-ad8e-2a1416321242
+ℹ️  blendkit: Created new search history step [13:39:49.450, search.py:2719]
+ℹ️  blendkit: No temporarily enabled addons to clean up [13:39:49.450, download.py:429]
+00:02.906  blend            | Read blend: "C:\Users\itachi\Downloads\Greeting User\blender\apartment_final.blend"
+ℹ️  blendkit: No temporarily enabled addons to clean up [13:39:50.001, download.py:429]
+00:03.672  cycles           | WARNING HIPEW initialization failed: Error opening HIP dynamic library
+02:16.984  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F020.png'
+04:59.078  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F120.png'

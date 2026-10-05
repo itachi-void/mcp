@@ -15,7 +15,7 @@ import bmesh
 import bpy
 
 from . import materials as mats
-from .common import box, cylinder, empty, group, kelvin_to_linear, link, ring, sphere
+from .common import box, cylinder, empty, group, kelvin_to_linear, link, ring, sphere, upholster
 
 # --- shared furniture -------------------------------------------------------
 
@@ -54,18 +54,34 @@ def _point(name, coll, loc, watts, radius=0.05, kelvin=2700):
 
 def sofa(name, coll, loc, rot, length=2.8, depth=0.95, height=0.76, mat="boucle"):
     g = group(name, coll, loc, rot)
-    m, base = mats.get(mat), mats.get("walnut_dark")
-    box(f"{name}_plinth", coll, (0, 0, 0.06), (length - 0.1, depth - 0.1, 0.08), base, parent=g)
-    box(f"{name}_seat", coll, (0, 0.05, 0.27), (length, depth - 0.1, 0.3), m, bevel=0.06, parent=g)
+    m, metal = mats.get(mat), mats.get("bronze")
+    # slim legs lift the body 12 cm: the contact shadow underneath sells the weight
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            cylinder(f"{name}_leg{sx}{sy}", coll, (sx * (length / 2 - 0.16), sy * (depth / 2 - 0.14), 0.06),
+                     0.016, 0.12, metal, segments=16, parent=g, bevel=0.002)
+    upholster(box(f"{name}_seat", coll, (0, 0.05, 0.25), (length, depth - 0.1, 0.26), m, bevel=0.06, parent=g),
+              puff=0.05, wrinkle=0.003)
     bh = height - 0.34  # back rises from the seat top to the full height
-    box(f"{name}_back", coll, (0, -depth / 2 + 0.12, 0.34 + bh / 2), (length, 0.24, bh), m, bevel=0.09, parent=g)
+    upholster(box(f"{name}_back", coll, (0, -depth / 2 + 0.12, 0.34 + bh / 2), (length, 0.24, bh), m, bevel=0.09,
+                  parent=g), puff=0.06, wrinkle=0.004)
     for s in (-1, 1):
-        box(f"{name}_arm{s}", coll, (s * (length / 2 - 0.12), 0, 0.42), (0.24, depth, 0.32), m, bevel=0.09, parent=g)
+        upholster(box(f"{name}_arm{s}", coll, (s * (length / 2 - 0.12), 0, 0.42), (0.24, depth, 0.32), m,
+                      bevel=0.09, parent=g), puff=0.08, wrinkle=0.004, seed=s + 1)
     n = 3 if length > 2.2 else 2
     w = (length - 0.5) / n
     for i in range(n):
         x = -length / 2 + 0.25 + w * (i + 0.5)
-        box(f"{name}_cushion{i}", coll, (x, 0.08, 0.47), (w - 0.03, depth - 0.35, 0.12), m, bevel=0.05, parent=g)
+        jitter = (0.012, -0.008, 0.006)[i % 3]  # hand-placed, never perfectly aligned
+        c = box(f"{name}_cushion{i}", coll, (x + jitter, 0.08 + jitter, 0.45), (w - 0.02, depth - 0.35, 0.15), m,
+                bevel=0.06, parent=g)
+        c.rotation_euler = (math.radians(1.2 * (i - 1)), 0.0, math.radians(1.5 * (i - 1)))
+        upholster(c, puff=0.22, wrinkle=0.007, seed=i)
+        # back cushion leaning against the frame
+        b = box(f"{name}_backcushion{i}", coll, (x - jitter, -depth / 2 + 0.33, 0.66), (w - 0.04, 0.18, 0.42), m,
+                bevel=0.07, parent=g)
+        b.rotation_euler = (math.radians(-12), 0.0, math.radians(-1.0 * (i - 1)))
+        upholster(b, puff=0.25, wrinkle=0.008, seed=i + 3)
     return g
 
 
@@ -75,7 +91,7 @@ def chair(name, coll, loc, rot):
     for sx in (-0.2, 0.2):
         for sy in (-0.2, 0.2):
             box(f"{name}_leg{sx}{sy}", coll, (sx, sy, 0.22), (0.035, 0.035, 0.44), wood, parent=g)
-    box(f"{name}_seat", coll, (0, 0, 0.46), (0.46, 0.46, 0.06), fab, bevel=0.02, parent=g)
+    upholster(box(f"{name}_seat", coll, (0, 0, 0.47), (0.46, 0.46, 0.07), fab, bevel=0.025, parent=g), puff=0.15, wrinkle=0.003)
     box(f"{name}_back", coll, (0, -0.21, 0.75), (0.44, 0.04, 0.5), wood, bevel=0.01, parent=g)
     return g
 
@@ -264,12 +280,12 @@ def build_bedroom_module(M, offset, coll):
     _floor(M, "bedroom", coll, offset, R["size"], R["floor"])
     _ceiling_lights(M, "bedroom", coll, offset, R["size"])
     bx, by = ox + 4.25, oy + 3.85  # bed centre (headboard on the north wall)
-    box("bed_headboard", coll, (bx, oy + 4.86, 1.0), (3.2, 0.08, 2.0), mats.get("fabric_dark"), bevel=0.03)
+    upholster(box("bed_headboard", coll, (bx, oy + 4.86, 1.0), (3.2, 0.08, 2.0), mats.get("fabric_dark"), bevel=0.03), puff=0.02, wrinkle=0.002)
     box("bed_frame", coll, (bx, by, 0.18), (1.9, 2.1, 0.3), mats.get("walnut_dark"))
-    box("bed_mattress", coll, (bx, by, 0.43), (1.8, 2.0, 0.22), mats.get("linen"), bevel=0.05)
+    upholster(box("bed_mattress", coll, (bx, by, 0.43), (1.8, 2.0, 0.22), mats.get("linen"), bevel=0.05), puff=0.04, wrinkle=0.006)
     box("bed_throw", coll, (bx, by - 0.65, 0.55), (1.86, 0.6, 0.03), mats.get("fabric_dark"), bevel=0.012)
     for s in (-1, 1):
-        box(f"bed_pillow{s}", coll, (bx + s * 0.42, oy + 4.6, 0.63), (0.7, 0.25, 0.18), mats.get("linen"), bevel=0.07)
+        upholster(box(f"bed_pillow{s}", coll, (bx + s * 0.42, oy + 4.6, 0.63), (0.7, 0.25, 0.18), mats.get("linen"), bevel=0.07), puff=0.3, wrinkle=0.008, seed=s + 1)
         box(f"bed_side{s}", coll, (bx + s * 1.5, oy + 4.6, 0.25), (0.5, 0.4, 0.5), mats.get("walnut"))
         table_lamp(f"bed_lamp{s}", coll, (bx + s * 1.5, oy + 4.6, 0.5))
     # Bedside light line at headboard height: match cut into the living LED line.

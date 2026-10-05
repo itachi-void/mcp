@@ -1,0 +1,58 @@
+ℹ️  blendkit: Verbose is enabled [12:21:26.589, addon_updater.py:150]
+ℹ️  blendkit: Read in JSON settings from file [12:21:26.591, addon_updater.py:150]
+ℹ️  blendkit: Ports reordered so first port is now 62485 (previous index was 0) [12:21:26.596, client_lib.py:163]
+BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
+BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
+BlenderMCP addon registered
+DAZ loaded
+Register DAZ Importer
+Loading MHX Tools
+Register MHX Tools
+Loading Rigify Tools
+Register Rigify Tools
+Loading Hair Tools
+Register Hair Tools
+Loading Visibility Tools
+Register Visibility Tools
+Loading Export Tools
+Register Export Tools
+Settings directory: C:/Users/itachi/Documents/DAZ Importer
+File does not exist:
+"C:/Users/itachi/Documents/DAZ Importer\import_daz_settings.json"
+File does not exist:
+"C:/Users/itachi/import-daz-settings-28x.json"
+VirtuCamera: Blender plug-in version 3.0.0 | Server version 3.0.5
+Created history step fe5af975-5e8c-4918-9266-0614d543b1b2
+ℹ️  blendkit: Created new search history step [12:21:28.033, search.py:2719]
+ℹ️  blendkit: No temporarily enabled addons to clean up [12:21:28.033, download.py:429]
+00:02.563  blend            | Read blend: "C:\Users\itachi\Downloads\Greeting User\blender\apartment_final.blend"
+ℹ️  blendkit: No temporarily enabled addons to clean up [12:21:28.568, download.py:429]
+00:03.297  cycles           | WARNING HIPEW initialization failed: Error opening HIP dynamic library
+02:10.531  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F020.png'
+04:08.953  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F120.png'
+06:18.031  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F270.png'
+08:22.563  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F300.png'
+09:51.938  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F372.png'
+11:06.766  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F440.png'
+12:54.547  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F520.png'
+14:15.516  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F600.png'
+15:42.110  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F690.png'
+17:06.641  render           | Saved: 'C:\Users\itachi\Downloads\Greeting User\render\preview\16x9_F860.png'
+mode=preview gpu=True
+  16x9_F020.png  127.2s
+  16x9_F120.png  118.1s
+  16x9_F270.png  128.7s
+  16x9_F300.png  124.0s
+  16x9_F372.png  89.0s
+  16x9_F440.png  74.4s
+  16x9_F520.png  107.5s
+  16x9_F600.png  80.7s
+  16x9_F690.png  86.3s
+  16x9_F860.png  84.2s
+ℹ️  blendkit: Unregistering Blendkit add-on [12:38:32.466, __init__.py:3010]
+ℹ️  blendkit: No temporarily enabled addons to clean up [12:38:32.468, download.py:429]
+BlenderMCP server stopped
+BlenderMCP addon unregistered
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

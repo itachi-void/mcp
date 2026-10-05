@@ -46,7 +46,7 @@
   "lighting": {
     "_doc": "One exposure for the whole apartment: every room gets the same ceiling irradiance (W per m2) and the same colour temperature, so brightness does not jump across cuts.",
     "ceiling_w_per_m2": 4.0,
-    "kelvin": 3500,
+    "kelvin": 4000,
     "practical_kelvin": 2700,
     "sun": { "strength": 3.5, "direction": [-0.78, 0.22, -0.58], "angle_deg": 0.6 },
     "sky_color": "#B9C7D6",
