@@ -1,0 +1,87 @@
+# خطة تنفيذ مشهد الحمام الفاخر بطابع Greige في Blender (Luxury Greige Bathroom)
+
+تهدف هذه الخطة إلى بناء مشهد الحمام الفاخر كاملاً داخل Blender وفق **قواعد الواقعية الفائقة (Photorealism Master Rules)** ومطابقاً للصورة المرجعية [`ref_bathroom.jpg`](file:///C:/Users/itachi/Downloads/Greeting%20User/src/imports/ref_bathroom.jpg)، واستكمالاً لمنظومة الشقة الفاخرة بجوار مشهدي المطبخ (`Kitchen_Scene`) وغرفة النوم (`Bedroom_Scene`) في نفس ملف العمل [`kitchen_scene.blend`](file:///e:/Blender/Kitchen/kitchen_scene.blend).
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> 1. **عزل المشاهد بالكامل (Scene Isolation)**: لن يتم حذف أي من كائنات المشاهد السابقة (`Kitchen_Scene` أو `Bedroom_Scene`). سيتم إنشاء/تنشيط مشهد مستقل باسم `Bathroom_Scene` داخل بليندر، وتنظيف كائنات هذا المشهد فقط.
+> 2. **إصلاح أخطاء هندسية في السكربت الأصلي**:
+>    - **المرحاض (`Toilet`)**: تصحيح تحويل الإحداثيات لمحاذاة كاسة المرحاض (`WC_Bowl`) والغطاء وحامل المناديل بدقة على الجدار الأيمن بدلاً من تشتتها في الهواء.
+>    - **الدش (`Shower`)**: ضبط اتجاه قضيب الدش (`Slide_Bar`) ليكون رأسياً على الجدار كما في الصورة المرجعية.
+>    - **البانيو (`Bathtub`)**: تصحيح تدرج قشرة البانيو (`radius1`/`radius2`) بحيث تتسع للأعلى بانسيابية مريحة ومطابقة للواقع.
+> 3. **أبعاد وإطار الكاميرا والرندر**:
+>    - سننتج نسختين من الرندر:
+>      - **نسخة رأسية (Portrait 2:3 - 1080×1620)**: مطابقة تماماً لكادر الصورة المرجعية [`ref_bathroom.jpg`](file:///C:/Users/itachi/Downloads/Greeting%20User/src/imports/ref_bathroom.jpg) لإبراز كوف السقف والأرضية معاً.
+>      - **نسخة أفقية (Landscape 16:9 - 1920×1080)**: متوافقة مع تطبيق الويب ومنظومة الغرف الأخرى.
+> 4. **تحديث السكربت العام في التطبيق**: سنحدّث الملف النهائي في مسار التنزيل [`C:\Users\itachi\Downloads\Greeting User\public\bathroom_blender.py`](file:///C:/Users/itachi/Downloads/Greeting%20User/public/bathroom_blender.py) ليكون متاحاً للمستخدم برمجياً ولزر التنزيل.
+
+---
+
+## Proposed Changes
+
+### Component 1: سكربت بناء الحمام الفاخر المحسّن (`bathroom_blender.py`)
+
+#### [NEW] [bathroom_blender.py](file:///e:/Blender/Kitchen/bathroom_blender.py)
+#### [MODIFY] [public/bathroom_blender.py](file:///C:/Users/itachi/Downloads/Greeting%20User/public/bathroom_blender.py)
+
+1. **إدارة المشهد**:
+   - استبدال `clear_scene()` بدالة `setup_scene("Bathroom_Scene")` تنشئ المشهد وتفرغه دون المساس بـ `Kitchen_Scene` أو `Bedroom_Scene`.
+2. **الخامات الواقعية (Anti-Plastic PBR)**:
+   - جدران ميكروسمنت greige بملمس جيري ناعم وتشتت ضوئي واقعي.
+   - أرضية بلاط حجري كبير بفواصل دقيقة ولمعان شمعي خفيف (`clearcoat 0.3`).
+   - خشب البلوط المخدد للفانيتي بقنوات حفر وانعكاسات ضوئية طولية واقعية.
+   - كوارتز مصقول لسطح الفانيتي مع عروق حجرية رقيقة.
+   - سيراميك صحي أبيض مطفي/حريري (Satin Matte Solid Surface) للبانيو والأحواض.
+   - إكسسوارات سوداء مطفية (Matte Black Anodized) مع خشونة ميكروسكوبية دون تدرج بلاستيكي.
+   - زجاج دش فيزيائي شفاف فائق النقاء بنفاذية 0.95 وانكسار IOR 1.5.
+   - سجادة Runner منسوجة بنسيج loop-pile خشن ولمعان صوفي خافت.
+3. **الهندسة والحواف (Bevels & Proportions)**:
+   - شطف الحواف الحادة لجميع الأسطح الصلبة (Countertop, Vanity, Niche, Frames, Tub rim).
+   - الفانيتي العائمة مع إضاءة Underglow سفلية، وحوض vessel بيضاوي generous، وصنبور جداري.
+   - مرآة دائرية بهالة ضوئية خلفية ناعمة، وتعليقة أسطوانية سوداء رفيعة.
+   - بانيو بيضاوي انسيابي مع صنبور جداري على الجدار الخلفي وصينية خشبية.
+   - نيش أفقي بارز بإضاءة دافئة + عمود نيش من 5 أرفف متدرجة الإضاءة يسار الجدار.
+   - كابينة دش زجاجية بإطار أسود، ورأس دوش مطري سقفي، وقضيب انزلاقي رأسي، ونيش داخلي.
+   - مرحاض معلق على الجدار الأيمن مع خزان جداري مخفي، وزر شطف، وحامل مناديل، ولوحة نباتية مؤطرة.
+4. **منظومة الإضاءة الواقعية**:
+   - إضاءة كوف السقف LED الدافئة (2700K) المحيطية لإنشاء wash ضوئي ناعم على الجدران.
+   - سبوتات سقفية غائرة موجهة لأسفل لتكوين مساقط ضوء ناعمة على الأرضية.
+   - إضاءات نيش تفصيلية (Horizontal Niche, Column Niche, Shower Niche, Under-vanity).
+   - إضاءة Bounce محيطية ناعمة تحاكي الارتداد الضوئي الفيزيائي.
+
+---
+
+### Component 2: مشغل التنفيذ والرندر الآلي عبر السوكت (`run_bathroom.py`)
+
+#### [NEW] [run_bathroom.py](file:///e:/Blender/Kitchen/run_bathroom.py)
+
+- يتصل بـ Blender MCP Server على منفذ `9876`.
+- يرسل كود المشهد ليتم بناؤه بدقة، ويستقبل تقرير الكائنات والخامات.
+- يلتقط لقطة Viewport للمعاينة والتأكد من صحة كادر الكاميرا ومواقع العناصر.
+- يشغّل رندر Cycles باستخدام كرت الشاشة (GPU) مع AgX وOpenImageDenoise و512 عينة.
+- يحفظ مخرجات الرندر في [`renders/bathroom_photoreal_final.png`](file:///e:/Blender/Kitchen/renders/bathroom_photoreal_final.png) و[`public/bathroom_render.png`](file:///C:/Users/itachi/Downloads/Greeting%20User/public/bathroom_render.png).
+- يحفظ ملف العمل [`kitchen_scene.blend`](file:///e:/Blender/Kitchen/kitchen_scene.blend).
+
+---
+
+## Verification Plan
+
+### الفحص الآلي والبرمجي
+1. **فحص الـ Syntax**:
+   - `python -m py_compile e:\Blender\Kitchen\bathroom_blender.py`
+   - `python -m py_compile "C:\Users\itachi\Downloads\Greeting User\public\bathroom_blender.py"`
+2. **فحص الاتصال والبناء في Blender**:
+   - تشغيل `python run_bathroom.py` والتحقق من إنشاء `Bathroom_Scene` وبناء أكثر من 120 كائناً وأكثر من 35 خامة بنجاح (`status: ok`).
+3. **الفحص البنيوي للعناصر الحساسة**:
+   - التحقق من إحداثيات المرحاض `WC_Bowl` ومحاذاته مع الجدار الأيمن والغطاء.
+   - التحقق من رأسية قضيب الدش `Slide_Bar`.
+   - التأكد من عدم تأثر مشهدي `Kitchen_Scene` و`Bedroom_Scene`.
+
+### الفحص البصري والرندر (Visual Verification)
+4. **لقطة المعاينة (Viewport Preview)**: التقاط لقطة كاميرا من المشهد وفحص كادر الرؤية مقارنة بـ `ref_bathroom.jpg`.
+5. **الرندر النهائي (Cycles Render)**:
+   - فحص جودة خامة الميكروسمنت، خشب الفانيتي المخدد، رخام السطح، ونقاء زجاج الدش.
+   - التأكد من نعومة الظلال والارتدادات الضوئية لكوف LED والسبوتات الغائرة وانعدام النويز.

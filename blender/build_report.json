@@ -1,0 +1,75 @@
+{
+  "blender": "5.2.1 LTS",
+  "scenes": [
+    {
+      "scene": "FLY_16x9",
+      "errors": [],
+      "warnings": [],
+      "shots": {
+        "SHOT_01": {
+          "min_clearance_m": 0.643,
+          "max_yaw_deg_s": 26.022,
+          "max_waypoint_err_m": 0.0,
+          "lens": 24.0,
+          "path_length_m": 6.369
+        },
+        "SHOT_02": {
+          "min_clearance_m": 0.57,
+          "max_yaw_deg_s": 28.197,
+          "max_waypoint_err_m": 0.0,
+          "lens": 24.0,
+          "path_length_m": 6.264
+        },
+        "SHOT_03": {
+          "min_clearance_m": 0.425,
+          "max_yaw_deg_s": 9.925,
+          "max_waypoint_err_m": 0.0,
+          "lens": 32.0,
+          "path_length_m": 7.732
+        },
+        "SHOT_04": {
+          "min_clearance_m": 0.715,
+          "max_yaw_deg_s": 5.179,
+          "max_waypoint_err_m": 0.0,
+          "lens": 24.0,
+          "path_length_m": 4.222
+        }
+      }
+    },
+    {
+      "scene": "FLY_9x16",
+      "errors": [],
+      "warnings": [],
+      "shots": {
+        "SHOT_01": {
+          "min_clearance_m": 0.714,
+          "max_yaw_deg_s": 26.761,
+          "max_waypoint_err_m": 0.0,
+          "lens": 18.0,
+          "path_length_m": 6.369
+        },
+        "SHOT_02": {
+          "min_clearance_m": 0.718,
+          "max_yaw_deg_s": 27.423,
+          "max_waypoint_err_m": 0.0,
+          "lens": 18.0,
+          "path_length_m": 6.264
+        },
+        "SHOT_03": {
+          "min_clearance_m": 0.425,
+          "max_yaw_deg_s": 9.925,
+          "max_waypoint_err_m": 0.0,
+          "lens": 24.0,
+          "path_length_m": 7.732
+        },
+        "SHOT_04": {
+          "min_clearance_m": 0.715,
+          "max_yaw_deg_s": 5.135,
+          "max_waypoint_err_m": 0.0,
+          "lens": 18.0,
+          "path_length_m": 4.222
+        }
+      }
+    }
+  ]
+}
