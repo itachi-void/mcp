@@ -251,11 +251,12 @@ def apply(map_path):
         log(step="done", saved=False)
         sys.exit(2)
     out = os.path.join(HERE, "apartment_final.blend")
-    if os.path.exists(out):
-        try:
-            os.remove(out)
-        except OSError:
-            pass
+    for p in (out, out + "@", out + "1"):
+        if os.path.exists(p):
+            try:
+                os.remove(p)
+            except OSError:
+                pass
     bpy.ops.wm.save_as_mainfile(filepath=out, compress=True)
     log(step="done", saved=out)
 
