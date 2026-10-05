@@ -263,7 +263,82 @@ def build_library(M):
         "led_strip": emission("M_emit_led", L["practical_kelvin"], 28.0),
         "painting": painting(M),
     })
+    apply_scanned(M)
     return _LIB
+
+
+def _image(nt, path, non_color):
+    img = bpy.data.images.load(path, check_existing=True)
+    if non_color:
+        img.colorspace_settings.name = "Non-Color"
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = img
+    tex.projection = "BOX"  # tri-planar: no UV seams on the real-size primitives
+    tex.projection_blend = 0.25
+    return tex
+
+
+def apply_scanned(M):
+    """Swap a finish's procedural colour/roughness/normal for the CC0 scanned set in
+    assets/textures/<finish>/ when fetch_assets.py has downloaded it. Tile size is
+    real-world metres (object space on real-size meshes = one texel density)."""
+    import json
+    with open(os.path.join(HERE, "sourcing.json"), encoding="utf-8") as fh:
+        S = json.load(fh)
+    root = os.path.join(HERE, "..", "assets", "textures")
+    done = []
+    for key, spec in S["textures"].items():
+        mat = _LIB.get(key)
+        folder = os.path.join(root, key)
+        diff = os.path.join(folder, f"{key}_diff.jpg")
+        if mat is None or not os.path.exists(diff):
+            continue
+        nt = mat.node_tree
+        b = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+        normal_only = spec.get("normal_only", False)  # keep the palette colour, borrow the real weave/relief
+        for sock in ("Normal",) if normal_only else ("Base Color", "Roughness", "Normal"):
+            for link in list(b.inputs[sock].links):
+                nt.links.remove(link)
+        co = _coords(nt, (1.0 / spec["tile_m"],) * 3)
+        nor = os.path.join(folder, f"{key}_nor_gl.jpg")
+        if normal_only:
+            if os.path.exists(nor):
+                t = _image(nt, nor, True)
+                nm = nt.nodes.new("ShaderNodeNormalMap")
+                nm.inputs["Strength"].default_value = 0.8
+                nt.links.new(co, t.inputs["Vector"])
+                nt.links.new(t.outputs["Color"], nm.inputs["Color"])
+                nt.links.new(nm.outputs["Normal"], b.inputs["Normal"])
+            mat["scanned"] = spec["id"] + " (normal)"
+            done.append(key)
+            continue
+        tex = _image(nt, diff, False)
+        nt.links.new(co, tex.inputs["Vector"])
+        color = tex.outputs["Color"]
+        if "tint" in spec:
+            mix = nt.nodes.new("ShaderNodeMix")
+            mix.data_type, mix.blend_type = "RGBA", "MULTIPLY"
+            mix.inputs["Factor"].default_value = 1.0
+            mix.inputs["B"].default_value = hex_to_linear(spec["tint"])
+            nt.links.new(color, mix.inputs["A"])
+            color = mix.outputs["Result"]
+        nt.links.new(color, b.inputs["Base Color"])
+        rough = os.path.join(folder, f"{key}_rough.jpg")
+        if os.path.exists(rough):
+            t = _image(nt, rough, True)
+            nt.links.new(co, t.inputs["Vector"])
+            nt.links.new(t.outputs["Color"], b.inputs["Roughness"])
+        nor = os.path.join(folder, f"{key}_nor_gl.jpg")
+        if os.path.exists(nor):
+            t = _image(nt, nor, True)
+            nm = nt.nodes.new("ShaderNodeNormalMap")
+            nm.inputs["Strength"].default_value = 0.8
+            nt.links.new(co, t.inputs["Vector"])
+            nt.links.new(t.outputs["Color"], nm.inputs["Color"])
+            nt.links.new(nm.outputs["Normal"], b.inputs["Normal"])
+        mat["scanned"] = spec["id"]
+        done.append(key)
+    return done
 
 
 def get(name):

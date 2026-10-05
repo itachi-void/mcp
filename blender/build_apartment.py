@@ -20,7 +20,7 @@ if HERE not in sys.path:
     sys.path.insert(0, HERE)
 
 import apartment  # noqa: E402
-from apartment import cameras, checks, common, materials, render_setup, rooms, shell  # noqa: E402
+from apartment import cameras, checks, common, dressing, materials, render_setup, rooms, shell  # noqa: E402
 
 for mod in (common, materials, shell, rooms, cameras, render_setup, checks):
     importlib.reload(mod)
@@ -43,6 +43,8 @@ def main():
     for name, room in M["rooms"].items():
         coll = common.fresh_collection(f"ROOM_{name}", apt)
         rooms.MODULES[name](M, tuple(room["origin"]), coll)
+    dressing_report = dressing.build(apt)
+    print("DRESSING", dressing_report)
     world = render_setup.setup_world(M, apt)
 
     fly_v = bpy.data.scenes.new("FLY_9x16")

@@ -16,6 +16,7 @@ def setup_world(M, apt_coll):
     bg = world.node_tree.nodes["Background"]
     bg.inputs["Color"].default_value = hex_to_linear(L["sky_color"])
     bg.inputs["Strength"].default_value = L["sky_strength"]
+    _hdri(M, world, bg)
 
     from mathutils import Vector
     import math
@@ -26,6 +27,27 @@ def setup_world(M, apt_coll):
     obj = link(bpy.data.objects.new("SUN", sun), apt_coll)
     obj.rotation_euler = Vector(L["sun"]["direction"]).normalized().to_track_quat("-Z", "Y").to_euler()
     return world
+
+
+def _hdri(M, world, bg):
+    """Real city view behind the glass (CC0 HDRI) when downloaded; flat sky otherwise."""
+    import json
+    import math
+    path = os.path.join(os.path.dirname(__file__), "..", "assets", "hdri", "day.hdr")
+    if not os.path.exists(path):
+        return
+    with open(os.path.join(os.path.dirname(__file__), "sourcing.json"), encoding="utf-8") as fh:
+        rot = json.load(fh).get("hdri_rotation_deg", 0)
+    nt = world.node_tree
+    env = nt.nodes.new("ShaderNodeTexEnvironment")
+    env.image = bpy.data.images.load(path, check_existing=True)
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value[2] = math.radians(rot)
+    nt.links.new(tc.outputs["Generated"], mp.inputs["Vector"])
+    nt.links.new(mp.outputs["Vector"], env.inputs["Vector"])
+    nt.links.new(env.outputs["Color"], bg.inputs["Color"])
+    world["hdri"] = os.path.basename(path)
 
 
 def apply_render(M, scene, fmt, profile="final", world=None):
@@ -71,6 +93,10 @@ def apply_render(M, scene, fmt, profile="final", world=None):
     c = scene.cycles
     c.device = "CPU"  # render_frames.py switches to GPU when available
     c.samples = P["samples"]
+    # weak-machine guard: textures are downscaled at render time (files untouched)
+    c.texture_limit_render = P.get("texture_limit", "OFF")
+    r.use_simplify = "max_subdiv" in P  # caps the dressing models' subsurf levels
+    r.simplify_subdivision_render = P.get("max_subdiv", 6)
     c.use_adaptive_sampling = True
     c.adaptive_threshold = P["threshold"]   # fixed threshold = consistent noise floor per frame
     c.adaptive_min_samples = P["min_samples"]

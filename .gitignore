@@ -23,3 +23,8 @@ render/
 __pycache__/
 *.pyc
 *.blend1
+blender/assets/textures/
+blender/assets/hdri/
+blender/assets/models/
+blender/assets/*.jpg
+*.part

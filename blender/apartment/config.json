@@ -40,7 +40,7 @@
   "assets": {
     "door02":        { "proxy": "ASSET_DOOR02",        "file": "assets/Door02.blend",        "object": "Door02",       "expected_dims": [0.95, 0.143, 2.037],  "tolerance": 0.05 },
     "freedom_sofa":  { "proxy": "ASSET_FREEDOM_SOFA",  "file": "assets/FreedomSofa.blend",   "object": "FreedomSofa",  "expected_dims": [2.673, 1.131, 1.125],  "tolerance": 0.08 },
-    "rembrandt":     { "proxy": "ASSET_REMBRANDT",     "image": "assets/rembrandt.jpg",      "min_long_edge_px": 4000, "canvas": [0.84, 1.03] }
+    "rembrandt":     { "proxy": "ASSET_REMBRANDT",     "image": "assets/rembrandt.jpg",      "min_long_edge_px": 4000, "canvas": [0.84, 1.096] }
   },
 
   "lighting": {
@@ -61,8 +61,8 @@
     },
     "profiles": {
       "final":   { "samples": 384, "min_samples": 96, "threshold": 0.01, "percentage": 100 },
-      "hd":      { "samples": 128, "min_samples": 32, "threshold": 0.03, "percentage": 50 },
-      "preview": { "samples": 48,  "min_samples": 16, "threshold": 0.05, "percentage": 25 }
+      "hd":      { "samples": 128, "min_samples": 32, "threshold": 0.03, "percentage": 50, "texture_limit": "2048", "max_subdiv": 2 },
+      "preview": { "samples": 48,  "min_samples": 16, "threshold": 0.05, "percentage": 25, "texture_limit": "512", "max_subdiv": 1 }
     },
     "shutter": 0.5,
     "clamp_direct": 0.0,

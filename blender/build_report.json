@@ -7,7 +7,7 @@
       "warnings": [],
       "shots": {
         "SHOT_01": {
-          "min_clearance_m": 0.643,
+          "min_clearance_m": 0.504,
           "max_yaw_deg_s": 26.022,
           "max_waypoint_err_m": 0.0,
           "lens": 24.0,

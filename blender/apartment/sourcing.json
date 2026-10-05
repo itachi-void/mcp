@@ -1,0 +1,221 @@
+{
+ "_note": "All CC0 / public domain (Poly Haven + Wikimedia). Safe for commercial sale, no attribution required. Resolution 2k keeps the weak machine happy.",
+ "resolution": "2k",
+ "textures": {
+  "floor_oak": {
+   "id": "oak_veneer_01",
+   "tile_m": 1.2
+  },
+  "walnut": {
+   "id": "walnut_veneer",
+   "tile_m": 1.0,
+   "normal_only": false
+  },
+  "walnut_dark": {
+   "id": "smoked_walnut_veneer",
+   "tile_m": 1.0
+  },
+  "plaster": {
+   "id": "white_plaster_02",
+   "tile_m": 2.0,
+   "normal_only": true
+  },
+  "travertine": {
+   "id": "marble_01",
+   "tile_m": 1.5,
+   "tint": "#E8D9C0"
+  },
+  "dark_stone": {
+   "id": "terrazzo_tiles",
+   "tile_m": 1.0
+  },
+  "boucle": {
+   "id": "wool_boucle",
+   "tile_m": 0.3,
+   "normal_only": true
+  },
+  "linen": {
+   "id": "rough_linen",
+   "tile_m": 0.3
+  },
+  "fabric_dark": {
+   "id": "velour_velvet",
+   "tile_m": 0.3,
+   "normal_only": true
+  },
+  "rug": {
+   "id": "poly_wool_herringbone",
+   "tile_m": 0.5
+  },
+  "tile": {
+   "id": "long_white_tiles",
+   "tile_m": 1.0
+  },
+  "terrace_stone": {
+   "id": "stone_tiles_02",
+   "tile_m": 1.0
+  },
+  "leather": {
+   "id": "brown_leather",
+   "tile_m": 0.5
+  }
+ },
+ "hdri": {
+  "day": "hotel_rooftop_balcony",
+  "alt": "canary_wharf",
+  "golden": "venice_sunset"
+ },
+ "rembrandt": {
+  "title": "The Return of the Prodigal Son (c.1668), Hermitage — public domain",
+  "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Rembrandt_Harmensz_van_Rijn_-_Return_of_the_Prodigal_Son_-_Google_Art_Project.jpg/3840px-Rembrandt_Harmensz_van_Rijn_-_Return_of_the_Prodigal_Son_-_Google_Art_Project.jpg",
+  "file": "rembrandt.jpg"
+ },
+ "dressing": [
+  {
+   "model": "book_encyclopedia_set_01",
+   "anchor": "living_coffee_top",
+   "on": "top",
+   "dx": -0.3,
+   "dy": 0.05,
+   "rot": 10
+  },
+  {
+   "model": "wooden_bowl_01",
+   "anchor": "living_coffee_top",
+   "on": "top",
+   "dx": 0.35,
+   "dy": -0.1,
+   "rot": 0
+  },
+  {
+   "model": "ceramic_vase_01",
+   "anchor": "living_credenza",
+   "on": "top",
+   "dx": 0.0,
+   "dy": 0.6,
+   "rot": 0
+  },
+  {
+   "model": "brass_vase_01",
+   "anchor": "living_credenza",
+   "on": "top",
+   "dx": 0.0,
+   "dy": -0.5,
+   "rot": 90
+  },
+  {
+   "model": "potted_plant_02",
+   "anchor": "living_plant",
+   "on": "floor",
+   "dx": 0,
+   "dy": 0,
+   "rot": 0,
+   "replace": true,
+   "scale": 1.4
+  },
+  {
+   "model": "brass_vase_02",
+   "anchor": "dining_table_top",
+   "on": "top",
+   "dx": 0.0,
+   "dy": 0.0,
+   "rot": 0
+  },
+  {
+   "model": "wooden_bowl_01",
+   "anchor": "dining_table_top",
+   "on": "top",
+   "dx": 0.55,
+   "dy": 0.05,
+   "rot": 0
+  },
+  {
+   "model": "brass_goblets",
+   "anchor": "dining_table_top",
+   "on": "top",
+   "dx": -0.55,
+   "dy": 0.1,
+   "rot": 30
+  },
+  {
+   "model": "wooden_bowl_01",
+   "anchor": "kitchen_island_top",
+   "on": "top",
+   "dx": 0.5,
+   "dy": 0.0,
+   "rot": 0
+  },
+  {
+   "model": "ceramic_vase_03",
+   "anchor": "kitchen_back_top",
+   "on": "top",
+   "dx": 1.1,
+   "dy": 0.05,
+   "rot": 0
+  },
+  {
+   "model": "wine_bottles_01",
+   "anchor": "kitchen_back_top",
+   "on": "top",
+   "dx": -0.7,
+   "dy": 0.05,
+   "rot": 0
+  },
+  {
+   "model": "ceramic_vase_04",
+   "anchor": "entry_console",
+   "on": "top",
+   "dx": -0.35,
+   "dy": 0.0,
+   "rot": 0
+  },
+  {
+   "model": "marble_bust_01",
+   "anchor": "entry_console",
+   "on": "top",
+   "dx": 0.3,
+   "dy": 0.0,
+   "rot": 200
+  },
+  {
+   "model": "book_encyclopedia_set_01",
+   "anchor": "bed_throw",
+   "on": "top",
+   "dx": 0.5,
+   "dy": 0.0,
+   "rot": 15
+  },
+  {
+   "model": "potted_plant_02",
+   "anchor": "terrace_plant0",
+   "on": "floor",
+   "dx": 0,
+   "dy": 0,
+   "rot": 0,
+   "replace": true,
+   "scale": 1.7
+  },
+  {
+   "model": "potted_plant_02",
+   "anchor": "terrace_plant1",
+   "on": "floor",
+   "dx": 0,
+   "dy": 0,
+   "rot": 40,
+   "replace": true,
+   "scale": 1.7
+  },
+  {
+   "model": "potted_plant_02",
+   "anchor": "terrace_plant2",
+   "on": "floor",
+   "dx": 0,
+   "dy": 0,
+   "rot": 80,
+   "replace": true,
+   "scale": 1.7
+  }
+ ],
+ "hdri_rotation_deg": 0,
+ "_weight_note": "decorative_book_set_01 (~200 MB textures) and brass_candleholders swapped out: they push a 4 GB machine out of RAM."
+}

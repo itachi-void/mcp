@@ -5,17 +5,26 @@ Follow these steps exactly. Never edit `apartment_master.blend`; the output is `
 Stop and report to the user whenever a step says STOP.
 
 ## 0. Preconditions
-1. Run `blender --version`. It must be **4.5.x**. If not, STOP and ask the user for the Blender 4.5 LTS path.
+1. Run `blender --version`. It must be **4.5.x or 5.2.x** (the user has 5.2.1 at `D:\\Blender Foundation\\blender.exe`). Otherwise STOP and ask.
 2. Get the repo folder (contains `blender/apartment_master.blend`, `blender/apply_decisions.py`, `blender/apartment/config.json`).
    If `apartment_master.blend` is missing, build it:
    `blender -b --factory-startup -P blender/build_apartment.py` (must print `BUILD OK`).
 
+## 0b. Realism kit (CC0 textures, HDRI, decor, Rembrandt)
+```
+python blender/fetch_assets.py
+blender -b --factory-startup -P blender/build_apartment.py
+```
+~560 MB, resumable. The build picks the files up automatically (scanned textures, HDRI behind the glass,
+15 decor models, and the Rembrandt scan). Do NOT add models to `sourcing.json` that have >100 MB of textures;
+this machine has limited RAM.
+
 ## 1. Specs to match (from config.json)
 | key | what | expected size (m) W×D×H | tolerance |
 |---|---|---|---|
-| door02 | Door02 leaf, closed | 1.00 × 0.06 × 2.20 | ±0.08 |
-| freedom_sofa | Freedom Sofa | 2.80 × 1.00 × 0.75 | ±0.15 |
-| rembrandt | image scan | long edge ≥ 4000 px, canvas 0.84×1.03 (portrait) | — |
+| door02 | Door02 (with frame) | 0.95 × 0.143 × 2.037 | ±0.05 |
+| freedom_sofa | Freedom Sofa (object `Freedom_Sofa.001`) | 2.673 × 1.131 × 1.125 | ±0.08 |
+| rembrandt | image scan | already downloaded by fetch_assets.py (3840×5011, public domain) — skip | — |
 
 Accepted mesh formats: .blend (preferred), .glb/.gltf, .fbx, .obj, .usd*. cm/mm exports are rescaled automatically.
 
