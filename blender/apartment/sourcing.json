@@ -36,7 +36,8 @@
   },
   "linen": {
    "id": "rough_linen",
-   "tile_m": 0.3
+   "tile_m": 0.3,
+   "normal_only": true
   },
   "fabric_dark": {
    "id": "velour_velvet",
