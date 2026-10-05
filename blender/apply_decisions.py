@@ -257,7 +257,20 @@ def apply(map_path):
                 os.remove(p)
             except OSError:
                 pass
-    bpy.ops.wm.save_as_mainfile(filepath=out, compress=True)
+    try:
+        bpy.ops.wm.save_as_mainfile(filepath=out, compress=True)
+    except Exception:
+        time.sleep(1)
+        tmp = out + "@"
+        if os.path.exists(tmp):
+            if os.path.exists(out):
+                try:
+                    os.remove(out)
+                except OSError:
+                    pass
+            os.replace(tmp, out)
+        else:
+            raise
     log(step="done", saved=out)
 
 

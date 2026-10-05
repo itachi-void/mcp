@@ -15,7 +15,7 @@ import bmesh
 import bpy
 
 from . import materials as mats
-from .common import box, cylinder, empty, group, kelvin_to_linear, link, ring, sphere, upholster
+from .common import box, cylinder, empty, group, kelvin_to_linear, link, ray_visibility, ring, sphere, upholster
 
 # --- shared furniture -------------------------------------------------------
 
@@ -27,18 +27,77 @@ def _floor(M, name, coll, offset, size, mat_name):
 
 
 def _ceiling_lights(M, name, coll, offset, size, inset=0.5):
-    """Same W/m2 and Kelvin in every room -> one exposure for the whole film."""
+    """Same W/m2 and Kelvin in every room -> one exposure for the whole film.
+    Real apartments are lit by recessed downlights, not one glowing ceiling: most of
+    the budget goes into a grid of spots (pools of light on floor and walls = contrast),
+    a small share stays as a soft ceiling bounce so corners never go black."""
     L = M["lighting"]
     sx, sy = size
+    H = M["shell"]["wall_height"]
+    budget = L["ceiling_w_per_m2"] * sx * sy
+    fill_share = L.get("ceiling_fill_share", 0.3)
     lw, lh = max(0.4, sx - 2 * inset), max(0.4, sy - 2 * inset)
     light = bpy.data.lights.new(f"{name}_ceiling", "AREA")
     light.shape = "RECTANGLE"
     light.size, light.size_y = lw, lh
-    light.energy = L["ceiling_w_per_m2"] * sx * sy
+    light.energy = budget * fill_share
     light.color = kelvin_to_linear(L["kelvin"])
     light.spread = math.radians(120)
     obj = link(bpy.data.objects.new(f"{name}_ceiling", light), coll)
-    obj.location = (offset[0] + sx / 2, offset[1] + sy / 2, M["shell"]["wall_height"] - 0.02)
+    obj.location = (offset[0] + sx / 2, offset[1] + sy / 2, H - 0.02)
+    ray_visibility(obj, camera=False, glossy=False)  # no flat rectangle in reflections
+
+    pitch = L.get("downlight_pitch", 1.5)
+    nx, ny = max(1, round(lw / pitch)), max(1, round(lh / pitch))
+    each = budget * (1 - fill_share) / (nx * ny)
+    trim = mats.get("downlight_trim")
+    for i in range(nx):
+        for j in range(ny):
+            x = offset[0] + inset + lw / nx * (i + 0.5)
+            y = offset[1] + inset + lh / ny * (j + 0.5)
+            spot = bpy.data.lights.new(f"{name}_dl{i}{j}", "SPOT")
+            spot.energy = each
+            spot.color = kelvin_to_linear(L.get("downlight_kelvin", L["practical_kelvin"]))
+            spot.spot_size = math.radians(L.get("downlight_beam_deg", 70))
+            spot.spot_blend = 0.65
+            spot.shadow_soft_size = 0.035
+            so = link(bpy.data.objects.new(f"{name}_dl{i}{j}", spot), coll)
+            so.location = (x, y, H - 0.03)  # points straight down (-Z) by default
+            # 75 mm bronze-black trim ring + glowing lens, flush with the slab
+            cylinder(f"{name}_dl{i}{j}_trim", coll, (x, y, H - 0.004), 0.045, 0.008, trim, segments=24, bevel=0.0)
+            cylinder(f"{name}_dl{i}{j}_lens", coll, (x, y, H - 0.009), 0.028, 0.002, mats.get("lamp_warm"),
+                     segments=24, bevel=0.0)
+    return obj
+
+
+def drape(name, coll, x, y0, y1, z0, z1, mat, folds=8, depth=0.07):
+    """Gathered curtain panel hanging in the YZ plane at x: a real sine-pleated sheet
+    (folds catch light and shadow) with a slight flare toward the hem."""
+    bm = bmesh.new()
+    nu, nv = folds * 8, 12
+    verts = []
+    for v in range(nv + 1):
+        t = v / nv
+        z = z0 + (z1 - z0) * t
+        amp = depth * (1.25 - 0.25 * t)  # fuller at the hem
+        row = []
+        for u in range(nu + 1):
+            a = u / nu
+            y = y0 + (y1 - y0) * a
+            row.append(bm.verts.new((x + amp * math.sin(a * folds * 2 * math.pi), y, z)))
+        verts.append(row)
+    for v in range(nv):
+        for u in range(nu):
+            bm.faces.new((verts[v][u], verts[v][u + 1], verts[v + 1][u + 1], verts[v + 1][u]))
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    for p in me.polygons:
+        p.use_smooth = True
+    obj = link(bpy.data.objects.new(name, me), coll)
+    sol = obj.modifiers.new("thickness", "SOLIDIFY")
+    sol.thickness = 0.004
     return obj
 
 
@@ -118,7 +177,7 @@ def table_lamp(name, coll, loc):
     g = group(name, coll, loc)
     cylinder(f"{name}_base", coll, (0, 0, 0.18), 0.05, 0.36, mats.get("ceramic"), parent=g)
     cylinder(f"{name}_shade", coll, (0, 0, 0.44), 0.16, 0.22, mats.get("lamp_shade"), parent=g, bevel=0.0)
-    p = _point(f"{name}_light", coll, (0, 0, 0.42), 18, 0.06)
+    p = _point(f"{name}_light", coll, (0, 0, 0.42), 9, 0.06)
     p.parent = g
     return g
 
@@ -287,29 +346,51 @@ def build_bedroom_module(M, offset, coll):
         x = bx - 1.6 + 3.2 / n_ch * (i + 0.5)
         upholster(box(f"bed_headboard_ch{i}", coll, (x, oy + 4.83, 1.0), (3.2 / n_ch - 0.01, 0.07, 1.96),
                       mats.get("fabric_dark"), bevel=0.03), puff=0.06, wrinkle=0.003, seed=i)
-    box("bed_frame", coll, (bx, by, 0.18), (1.9, 2.1, 0.3), mats.get("walnut_dark"))
-    upholster(box("bed_mattress", coll, (bx, by, 0.43), (1.8, 2.0, 0.22), mats.get("linen"), bevel=0.05), puff=0.04, wrinkle=0.006)
-    # duvet slightly overhanging the mattress, folded back at the head; throw draped over it
-    upholster(box("bed_duvet", coll, (bx, by - 0.2, 0.57), (1.94, 1.6, 0.06), mats.get("linen"), bevel=0.03),
-              puff=0.03, wrinkle=0.012, seed=2)
-    upholster(box("bed_duvet_fold", coll, (bx, by + 0.62, 0.6), (1.94, 0.3, 0.07), mats.get("linen"), bevel=0.035),
-              puff=0.15, wrinkle=0.01, seed=4)
-    upholster(box("bed_throw", coll, (bx, by - 0.65, 0.61), (1.98, 0.6, 0.025), mats.get("fabric_dark"), bevel=0.012),
-              puff=0.02, wrinkle=0.01, seed=5)
+    # plinth bed: frame floats on a recessed base -> dark shadow gap reads as real joinery
+    box("bed_plinth", coll, (bx, by, 0.06), (1.7, 1.9, 0.12), mats.get("black_metal"), bevel=0.002)
+    box("bed_frame", coll, (bx, by, 0.24), (1.96, 2.12, 0.22), mats.get("walnut_dark"), bevel=0.008)
+    upholster(box("bed_mattress", coll, (bx, by + 0.02, 0.47), (1.8, 2.0, 0.26), mats.get("linen"), bevel=0.06),
+              puff=0.05, wrinkle=0.005)
+    # duvet overhangs both sides and drops toward the floor; folded back at the head
+    upholster(box("bed_duvet", coll, (bx, by - 0.18, 0.63), (2.06, 1.66, 0.07), mats.get("linen"), bevel=0.035),
+              puff=0.04, wrinkle=0.018, seed=2)
     for s in (-1, 1):
-        p = box(f"bed_pillow{s}", coll, (bx + s * 0.44, oy + 4.62, 0.7), (0.7, 0.2, 0.45), mats.get("linen"), bevel=0.08)
-        p.rotation_euler = (math.radians(-14), 0.0, math.radians(s * 2.0))
-        upholster(p, puff=0.35, wrinkle=0.008, seed=s + 1)
-        q = box(f"bed_cushion{s}", coll, (bx + s * 0.3, oy + 4.42, 0.68), (0.45, 0.16, 0.38), mats.get("fabric_dark"),
-                bevel=0.07)
-        q.rotation_euler = (math.radians(-10), 0.0, math.radians(-s * 4.0))
-        upholster(q, puff=0.35, wrinkle=0.006, seed=s + 3)
-        box(f"bed_side{s}", coll, (bx + s * 1.5, oy + 4.6, 0.25), (0.5, 0.4, 0.5), mats.get("walnut"))
-        table_lamp(f"bed_lamp{s}", coll, (bx + s * 1.5, oy + 4.6, 0.5))
+        d = box(f"bed_duvet_drop{s}", coll, (bx + s * 1.035, by - 0.18, 0.45), (0.035, 1.66, 0.36),
+                mats.get("linen"), bevel=0.015)
+        d.rotation_euler.y = math.radians(-s * 4.0)
+        upholster(d, puff=0.02, wrinkle=0.014, seed=s + 6)
+    upholster(box("bed_duvet_fold", coll, (bx, by + 0.6, 0.67), (2.04, 0.34, 0.08), mats.get("linen"), bevel=0.04),
+              puff=0.18, wrinkle=0.012, seed=4)
+    # throw: narrow runner across the foot third, hanging over the edges, slightly skewed
+    t = box("bed_throw", coll, (bx + 0.05, by - 0.72, 0.672), (2.1, 0.5, 0.018), mats.get("fabric_dark"), bevel=0.008)
+    t.rotation_euler.z = math.radians(1.8)
+    upholster(t, puff=0.015, wrinkle=0.012, seed=5)
+    # layered pillows: euro shams against the headboard, sleeping pillows, one lumbar
+    for s in (-1, 1):
+        e = box(f"bed_euro{s}", coll, (bx + s * 0.46, oy + 4.66, 0.92), (0.66, 0.16, 0.62), mats.get("linen"), bevel=0.07)
+        e.rotation_euler = (math.radians(-9), 0.0, math.radians(s * 1.5))
+        upholster(e, puff=0.32, wrinkle=0.012, seed=s + 1)
+        p = box(f"bed_pillow{s}", coll, (bx + s * 0.45, oy + 4.45, 0.76), (0.74, 0.17, 0.46), mats.get("linen"), bevel=0.07)
+        p.rotation_euler = (math.radians(-24), 0.0, math.radians(-s * 3.0))
+        upholster(p, puff=0.38, wrinkle=0.014, seed=s + 2)
+        box(f"bed_side{s}", coll, (bx + s * 1.55, oy + 4.6, 0.25), (0.5, 0.4, 0.5), mats.get("walnut"), bevel=0.006)
+        box(f"bed_side{s}_gap", coll, (bx + s * 1.55, oy + 4.39, 0.36), (0.46, 0.005, 0.006), mats.get("black_metal"), bevel=0.0)
+        table_lamp(f"bed_lamp{s}", coll, (bx + s * 1.55, oy + 4.6, 0.5))
+    lum = box("bed_lumbar", coll, (bx, oy + 4.3, 0.74), (0.62, 0.13, 0.3), mats.get("fabric_dark"), bevel=0.05)
+    lum.rotation_euler = (math.radians(-16), 0.0, math.radians(2.5))
+    upholster(lum, puff=0.4, wrinkle=0.008, seed=7)
+    box("bed_rug", coll, (bx, by - 0.4, 0.006), (3.0, 2.4, 0.012), mats.get("rug"), bevel=0.0)
     # Bedside light line at headboard height: match cut into the living LED line.
     box("bed_led_line", coll, (bx, oy + 4.81, 2.02), (3.2, 0.012, 0.012), mats.get("led_strip"), bevel=0.0)
     box("bed_wardrobe", coll, (ox + 0.4, oy + 2.4, 1.3), (0.6, 3.0, 2.6), mats.get("walnut"))
-    box("bed_curtain", coll, (ox + 8.35, oy + 2.5, 1.45), (0.04, 3.4, 2.8), mats.get("linen"), bevel=0.0)
+    # Curtains drawn open: two gathered linen panels stacked beside the glazing and a sheer
+    # across it. The window must stay a light source -- the cool dusk fill is what keeps
+    # the room from collapsing into one orange tone.
+    gx = ox + 8.5 - 0.12
+    drape("bed_curtain_s", coll, gx, oy + 0.7, oy + 1.25, 0.02, 2.86, mats.get("linen"), folds=6)
+    drape("bed_curtain_n", coll, gx, oy + 3.75, oy + 4.3, 0.02, 2.86, mats.get("linen"), folds=6)
+    drape("bed_sheer", coll, gx + 0.05, oy + 1.2, oy + 3.8, 0.02, 2.86, mats.get("sheer"), folds=14, depth=0.035)
+    box("bed_curtain_track", coll, (gx + 0.02, oy + 2.5, 2.88), (0.04, 3.7, 0.02), mats.get("black_metal"), bevel=0.0)
 
 
 def build_terrace_module(M, offset, coll):

@@ -45,9 +45,14 @@
 
   "lighting": {
     "_doc": "One exposure for the whole apartment: every room gets the same ceiling irradiance (W per m2) and the same colour temperature, so brightness does not jump across cuts.",
-    "ceiling_w_per_m2": 4.0,
+    "ceiling_w_per_m2": 5.0,
+    "ceiling_fill_share": 0.3,
     "kelvin": 4000,
-    "practical_kelvin": 3000,
+    "downlight_kelvin": 3000,
+    "downlight_pitch": 1.5,
+    "downlight_beam_deg": 70,
+    "practical_kelvin": 2700,
+    "window_fill": { "w_per_m2": 6.0, "kelvin": 7500 },
     "sun": { "strength": 3.5, "direction": [-0.78, 0.22, -0.58], "angle_deg": 0.6 },
     "sky_color": "#B9C7D6",
     "sky_strength": 0.9
@@ -64,6 +69,8 @@
       "hd":      { "samples": 128, "min_samples": 32, "threshold": 0.03, "percentage": 50, "texture_limit": "2048", "max_subdiv": 2 },
       "preview": { "samples": 48,  "min_samples": 16, "threshold": 0.05, "percentage": 25, "texture_limit": "512", "max_subdiv": 1 }
     },
+    "look": "Medium High Contrast",
+    "exposure": 0.0,
     "shutter": 0.5,
     "clamp_direct": 0.0,
     "clamp_indirect": 4.0,

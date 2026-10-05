@@ -26,7 +26,42 @@ def setup_world(M, apt_coll):
     sun.color = kelvin_to_linear(5600)
     obj = link(bpy.data.objects.new("SUN", sun), apt_coll)
     obj.rotation_euler = Vector(L["sun"]["direction"]).normalized().to_track_quat("-Z", "Y").to_euler()
+    _window_light(M, apt_coll)
     return world
+
+
+def _window_light(M, apt_coll):
+    """Every glazed opening gets (a) a Cycles portal, so the sky/HDRI is sampled through
+    the glass instead of leaking in as noise, and (b) a weak cool area fill. The blue
+    window light against 2700-3000K practicals is the warm/cool contrast that makes an
+    evening interior read as photographed rather than tinted orange."""
+    import math
+    from .common import ray_visibility
+    L = M["lighting"]
+    wf = L.get("window_fill", {})
+    for i, g in enumerate(M.get("glazing", [])):
+        if g["axis"] != "v":
+            continue
+        w, h = g["to"] - g["from"], g["head"] - g["sill"]
+        cy, cz = (g["from"] + g["to"]) / 2, (g["sill"] + g["head"]) / 2
+        for kind in ("portal", "fill"):
+            lt = bpy.data.lights.new(f"WINDOW_{kind}_{i}", "AREA")
+            lt.shape = "RECTANGLE"
+            lt.size, lt.size_y = h, w  # local X -> world Z after the rotation below
+            if kind == "portal":
+                if not hasattr(lt, "cycles") or not hasattr(lt.cycles, "is_portal"):
+                    bpy.data.lights.remove(lt)
+                    continue
+                lt.cycles.is_portal = True
+            else:
+                lt.energy = wf.get("w_per_m2", 6.0) * w * h
+                lt.color = kelvin_to_linear(wf.get("kelvin", 7500))
+                lt.spread = math.radians(160)
+            o = link(bpy.data.objects.new(f"WINDOW_{kind}_{i}", lt), apt_coll)
+            o.location = (g["at"] - 0.08, cy, cz)
+            o.rotation_euler = (0.0, math.radians(90), 0.0)  # emit toward -X (into the rooms)
+            if kind == "fill":
+                ray_visibility(o, camera=False, glossy=False, transmission=False)
 
 
 def _hdri(M, world, bg):
@@ -112,15 +147,23 @@ def apply_render(M, scene, fmt, profile="final", world=None):
     c.caustics_refractive = False
     c.blur_glossy = R["filter_glossy"]
     c.use_light_tree = True
-    c.max_bounces, c.diffuse_bounces, c.glossy_bounces = 12, 4, 4
+    c.max_bounces, c.diffuse_bounces, c.glossy_bounces = 12, 6, 4  # interiors live on bounce light
     c.transmission_bounces, c.transparent_max_bounces, c.volume_bounces = 8, 8, 0
 
     # View transform only affects viewport/PNG previews. EXR is written
     # scene-linear (Linear Rec.709 primaries) and graded in Resolve.
     scene.display_settings.display_device = "sRGB"
     scene.view_settings.view_transform = "AgX"
-    scene.view_settings.look = "None"
-    scene.view_settings.exposure = 0.0
+    # Photographic contrast: AgX base is deliberately flat. Look names differ between
+    # 4.x ("AgX - Medium High Contrast") and 5.x ("Medium High Contrast").
+    want = M["render"].get("look", "Medium High Contrast")
+    for name in (want, f"AgX - {want}", "None"):
+        try:
+            scene.view_settings.look = name
+            break
+        except TypeError:
+            continue
+    scene.view_settings.exposure = M["render"].get("exposure", 0.0)
     scene.view_settings.gamma = 1.0
 
     if world is not None:

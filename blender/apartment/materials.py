@@ -64,7 +64,9 @@ def _ramp(nt, fac_socket, c0, c1, p0=0.0, p1=1.0):
 
 def plaster():
     mat, nt, b = _new("M_plaster_greige")
-    _set(b, base=hex_to_linear("#CDC4B7"), rough=0.88, spec=0.3)
+    _set(b, base=hex_to_linear("#D3CCC1"), rough=0.88, spec=0.3)
+    # hand-troweled limewash: large soft tonal clouds, never one flat colour
+    _vary(nt, b, "#D3CCC1", 0.88, color_amt=0.07, rough_amt=0.06, scale=0.9)
     n = nt.nodes.new("ShaderNodeTexNoise")
     n.inputs["Scale"].default_value = 3.0
     n.inputs["Detail"].default_value = 6.0
@@ -225,6 +227,27 @@ def lamp_shade():
     return mat
 
 
+def sheer():
+    """Voile: mostly lets light through (transparent), scatters a little (translucent)
+    and shows a faint weave -- the window stays bright but softened."""
+    mat, nt, b = _new("M_sheer")
+    _set(b, base=hex_to_linear("#EEE8DE"), rough=0.9, sheen=0.6)
+    out = nt.nodes["Material Output"]
+    tr = nt.nodes.new("ShaderNodeBsdfTranslucent")
+    tr.inputs["Color"].default_value = hex_to_linear("#F3EEE6")
+    tp = nt.nodes.new("ShaderNodeBsdfTransparent")
+    m1 = nt.nodes.new("ShaderNodeMixShader")
+    m1.inputs["Fac"].default_value = 0.5
+    nt.links.new(b.outputs["BSDF"], m1.inputs[1])
+    nt.links.new(tr.outputs["BSDF"], m1.inputs[2])
+    m2 = nt.nodes.new("ShaderNodeMixShader")
+    m2.inputs["Fac"].default_value = 0.62  # share of light passing straight through
+    nt.links.new(m1.outputs["Shader"], m2.inputs[1])
+    nt.links.new(tp.outputs["BSDF"], m2.inputs[2])
+    nt.links.new(m2.outputs["Shader"], out.inputs["Surface"])
+    return mat
+
+
 def glass():
     """Architectural glass: refractive for camera rays, transparent for shadow
     rays, so sunlight passes the glazing with caustics disabled (no fireflies)."""
@@ -306,8 +329,11 @@ def build_library(M):
         "tile": tile(),
         "glass": glass(),
         "lamp_shade": lamp_shade(),
-        "lamp_warm": emission("M_emit_lamp", L["practical_kelvin"], 14.0),
-        "led_strip": emission("M_emit_led", L["practical_kelvin"], 16.0),
+        "sheer": sheer(),
+        "downlight_trim": solid("M_downlight_trim", "#1C1A18", rough=0.35, metal=1.0),
+        # tuned so emitters read as bright but keep a visible core under AgX (no white bars)
+        "lamp_warm": emission("M_emit_lamp", L["practical_kelvin"], 8.0),
+        "led_strip": emission("M_emit_led", L["practical_kelvin"], 6.0),
         "painting": painting(M),
     })
     apply_scanned(M)
